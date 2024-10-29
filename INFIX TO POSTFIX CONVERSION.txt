@@ -1,0 +1,96 @@
+#include<stdio.h>
+#include<ctype.h>  // For isalnum() function
+
+#define max 100
+
+int top = -1, a[max];  // Stack implementation using an array
+
+// Function to push an element onto the stack
+void push(char x)
+{
+    a[++top] = x;
+}
+
+// Function to pop an element from the stack
+char pop()
+{
+    if (top == -1)
+        return -1;  // Stack underflow, though this function returns char
+    else
+        return a[top--];
+}
+
+// Function to determine precedence of operators
+int prcd(char c)
+{
+    if (c == '(')
+        return 0;
+    else if (c == '+' || c == '-')
+        return 1;
+    else if (c == '*' || c == '/')
+        return 2;
+}
+
+// Function to convert infix expression to postfix
+void infixtopostfix(char infix[max], char postfix[max])
+{
+    char temp, x;
+    int i = 0, j = 0;
+    
+    while (infix[i] != '\0')
+    {
+        temp = infix[i];
+        
+        if (isalnum(temp))  // If character is alphanumeric, add to postfix
+        {
+            postfix[j++] = temp;
+        }
+        else if (temp == '(')
+        {
+            push(temp);  // Push '(' onto the stack
+        }
+        else if (temp == ')')
+        {
+            // Pop from stack and add to postfix until '(' is encountered
+            while ((x = pop()) != '(')
+            {
+                postfix[j++] = x;
+            }
+        }
+        else
+        {
+            // Operator case: Pop operators with higher or equal precedence from stack
+            while (prcd(a[top]) >= prcd(temp))
+            {
+                postfix[j++] = pop();
+            }
+            push(temp);  // Push current operator onto the stack
+        }
+        
+        i++;
+    }
+    
+    // Pop remaining operators from stack to postfix
+    while (top != -1)
+    {
+        postfix[j++] = pop();
+    }
+    
+    postfix[j] = '\0';  // Null terminate the postfix expression string
+}
+
+int main()
+{
+    char infix[max], postfix[max];
+    
+    printf("Enter the infix expression:\n");
+    gets(infix);  // Read infix expression from user
+    
+    printf("The infix expression is %s\n", infix);
+    
+    infixtopostfix(infix, postfix);  // Convert infix to postfix
+    
+    printf("The postfix expression is %s\n", postfix);
+    
+    return 0;
+}
